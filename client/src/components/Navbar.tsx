@@ -28,7 +28,7 @@ const Navbar = () => {
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleSearch = () => (e: React.SubmitEvent) => {
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (searchQuery.trim()) {

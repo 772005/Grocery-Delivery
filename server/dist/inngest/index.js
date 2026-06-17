@@ -163,24 +163,45 @@ const autoAssignRider = inngest.createFunction({
             return { skipped: true, reason: "Already assigned" };
         }
         if (['Cancelled', 'Delivered'].includes(order.status)) {
-            return { skipped: true, reason: `Order is ${order.status}` };
+            return { skipped: true, reason: 'Order is ${order.status}' };
         }
-        // Find available delivery partner
-        const availablePartner = await prisma.deliveryPartner.findFirst({ where: { isActive: true } });
-        if (!availablePartner) {
-            return { skipped: true, reason: "No available delivery partners at the moment" };
+        // find an active rider not currently delivering an order
+        const busyOrders = await prisma.order.findMany({
+            where: {
+                deliveryPartnerId: { not: null },
+                status: { in: ['Assigned', 'Out for Delivery'] }
+            },
+            select: { deliveryPartnerId: true }
+        });
+        const busyRiderIds = busyOrders.map(o => o.deliveryPartnerId);
+        const availableRider = await prisma.deliveryPartner.findFirst({
+            where: {
+                id: { notIn: busyRiderIds },
+                isActive: true
+            }
+        });
+        if (!availableRider) {
+            return { skipped: true, reason: "No available riders at the moment" };
         }
-        // Assign the delivery partner to the order
+        // Generate a random 6-digit OTP for delivery confirmation
+        const otp = Math.floor(100000 + Math.random() * 900000);
+        toString();
+        const history = (Array.isArray(order.statusHistory) ? order.statusHistory : []);
+        history.push({
+            status: "Assigned",
+            timestamp: new Date(),
+            note: `Auto-assigned to ${availableRider.name} (${availableRider.id})`
+        });
         await prisma.order.update({
             where: { id: orderId },
-            data: { deliveryPartnerId: availablePartner.id }
+            data: {
+                deliveryPartnerId: availableRider.id,
+                status: "Assigned",
+                statusHistory: history,
+                deliveryOtp: otp.toString()
+            }
         });
-        // Mark the delivery partner as inactive
-        await prisma.deliveryPartner.update({
-            where: { id: availablePartner.id },
-            data: { isActive: false }
-        });
-        return { assigned: true, deliveryPartnerId: availablePartner.id };
+        return { assigned: true, riderId: availableRider.id, riderName: availableRider.name, orderId: orderId };
     });
     return result;
 });
