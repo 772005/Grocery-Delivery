@@ -83,14 +83,15 @@ export const createOrder = async (req: Request, res: Response) => {
             cancel_url: `${req.headers.origin}/checkout`,
             line_items: [
                 {
-                    currency: "usd",
-                    product_data: {
-                        name: "Payment Groceries",
+                    price_data: {
+                        currency: "usd",
+                        product_data: {
+                            name: "Payment Groceries",
+                        },
+                        unit_amount: Math.round(order.total * 100),
                     },
-                    unit_amount: Math.round(order.total * 100),
-                },
-                quantity: 1,
-                
+                    quantity: 1,
+                }
          ],
         mode: 'payment',
         metadata: {orderId: order.id}
