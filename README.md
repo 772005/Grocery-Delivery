@@ -168,6 +168,29 @@ Grocery-Delivery/
    ```
    Open the Dev UI panel at `http://localhost:8288` to monitor executing workflows.
 
+### 🔍 Troubleshooting & Build Verification
+
+Before starting or deploying, verify compilation and run type checks:
+
+* **Backend Type Checks & Compilation:**
+  ```bash
+  cd server
+  # Verify no type compilation errors
+  npx tsc --noEmit
+  # Build typescript to js
+  npm run build
+  ```
+  *(Note: A Stripe checkout session `line_items` schema syntax bug in `controllers/orderController.ts` and a type-safety check in `controllers/webhooks.ts` have been fixed).*
+
+* **Frontend Type Checks & Build:**
+  ```bash
+  cd client
+  # Run type compiler check
+  npx tsc -p tsconfig.app.json --noEmit
+  # Build application bundle
+  npm run build
+  ```
+
 ---
 
 ## 🔒 Security Practices
