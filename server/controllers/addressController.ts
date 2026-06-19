@@ -8,8 +8,8 @@ export const getAddresses = async (req: Request, res: Response) => {
         where: { userId: req.user!.id },
         orderBy: { createdAt: "asc" }
     });
-    res.json(addresses);
-}
+    res.json({ addresses });
+};
 
 // add new address
 // POST /api/addresses

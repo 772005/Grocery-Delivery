@@ -35,7 +35,7 @@ export const getDeliveryPartners = async (req: Request, res: Response) => {
     const partners = await prisma.deliveryPartner.findMany({
         orderBy: { createdAt: 'desc' },
     });
-    res.json(partners);
+    res.json({ partners });
 }
 
 // create new deliverly partners profile
@@ -64,7 +64,7 @@ export const updateDeliveryPartner = async (req: Request, res: Response) => {
     if(name) data.name = name;
     if(phone) data.phone = phone;
     if(vehicleType) data.vehicleType = vehicleType;
-    if(isActive !== undefined) data.isActive = isActive;
+    data.isActive = isActive;
 
     try {
         const partner = await prisma.deliveryPartner.update({

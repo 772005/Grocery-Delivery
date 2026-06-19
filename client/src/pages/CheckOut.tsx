@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
-import { dummyAddressData } from "../assets/assets";
 import type { Address } from "../types";
 import {
   ArrowLeft,
@@ -13,43 +12,30 @@ import {
 import CheckoutAddress from "../components/Checkout/CheckoutAddress";
 import CheckoutPayment from "../components/Checkout/CheckoutPayment";
 import CheckoutReview from "../components/Checkout/CheckoutReview";
+import api from "../config/api";
+import toast from "react-hot-toast";
+import { useAuth } from "../context/AuthContext";
 
 const CheckOut = () => {
   const navigate = useNavigate();
   const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
 
-  const { items, cartTotal } = useCart();
-  const { user } = { user: { Addresses: dummyAddressData } };
+  const { items, cartTotal, clearCart } = useCart();
+  const { user } = useAuth();
 
   const [step, setStep] = useState("address");
   const [loading, setLoading] = useState(false);
 
-  const [address, setAddress] = useState<Address>(() => {
-    if (user?.Addresses?.length) {
-      const defaultAddr = user.Addresses.find((a) => a.isDefault) || user.Addresses[0];
-      return {
-        _id: defaultAddr._id,
-        label: defaultAddr.label,
-        address: defaultAddr.address,
-        city: defaultAddr.city,
-        state: defaultAddr.state,
-        zip: defaultAddr.zip,
-        isDefault: defaultAddr.isDefault || false,
-        lat: defaultAddr.lat || 0,
-        lng: defaultAddr.lng || 0,
-      };
-    }
-    return {
-      _id: "",
-      label: "Home",
-      address: "",
-      city: "",
-      state: "",
-      zip: "",
-      isDefault: false,
-      lat: 0,
-      lng: 0,
-    };
+  const [address, setAddress] = useState<Address>({
+    id: "",
+    label: "Home",
+    address: "",
+    city: "",
+    state: "",
+    zip: "",
+    isDefault: false,
+    lat: 0,
+    lng: 0,
   });
 
   const [paymentMethod, setPayMentMethod] = useState("card");
@@ -66,7 +52,36 @@ const CheckOut = () => {
 
   const handlePlaceHolder = async () => {
     setLoading(true);
-    navigate("/orders");
+    try {
+      const orderData = {
+        items: items.map((item) => ({
+          productId: item.product.id,
+          quantity: item.quantity,
+        })),
+        shippingAddress: address,
+        paymentMethod,
+      };
+
+      const { data } = await api.post("/orders", orderData);
+      console.log(data);
+
+      if (data.url) {
+        window.location.href = data.url; // Redirect to payment gateway
+        return;
+      }
+      clearCart();
+      toast.success("Order placed successfully!");
+      navigate(`/orders/${data.order.id}`);
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error.message ||
+          "Failed to place order. Please try again.",
+      );
+    } finally {
+      setLoading(false);
+      scrollTo(0, 0);
+    }
   };
 
   // populate address from users default address

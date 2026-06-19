@@ -12,8 +12,11 @@ import { inngest, functions } from "./inngest/index.js"
 import addressRouter from "./routes/addressRoutes.js";
 import adminRouter from "./routes/adminRoutes.js";
 import deliveryPartnerRouter from "./routes/deliveryPartnerRoutes.js";
+import { stripeWebhook } from "./controllers/webhooks.js";
 
 const app = express();
+
+app.post("/api/stripe", express.raw({type: 'application/json'}), stripeWebhook);
 
 // Middleware
 app.use(cors())
@@ -44,4 +47,4 @@ app.listen(port, () => {
 });
 
 // Keep the event loop alive
-setInterval(() => {}, 60000);
+setInterval(() => { }, 60000);

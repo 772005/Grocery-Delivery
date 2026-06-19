@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from "react";
 import type { Address } from "../types";
-import { dummyAddressData } from "../assets/assets";
 import { MapIcon, PlusIcon } from "lucide-react";
 import Loading from "../components/Loading";
 import AddressCard from "../components/AddressCard";
 import AddressForm from "../components/AddressForm";
+import { useAuth } from "../context/AuthContext";
+import toast from "react-hot-toast";
+import api from "../config/api";
 
 const Addresses = () => {
+  const { updateUser } = useAuth();
+
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -33,8 +37,80 @@ const Addresses = () => {
     setEditingId(null);
   };
 
-  const handleSumbit = async (e: React.SubmitEvent) => {
+  const getLocations = async (
+    retries = 3,
+  ): Promise<{ lat: number; lng: number }> => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation is not supported by this browser."));
+        return;
+      }
+
+      const attempt = () => {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            resolve({
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+            });
+          },
+          (error: any) => {
+            if (retries > 0) {
+              retries--;
+              setTimeout(attempt, 1000); // Retry after 1 second
+            } else {
+              reject(new Error(error.message || "Failed to get location."));
+            }
+          },
+          {
+            enableHighAccuracy: false,
+            timeout: 15000,
+            maximumAge: 0,
+          },
+        );
+      };
+      attempt();
+    });
+  };
+
+  const { address, city, state, zip } = form;
+  const fullAddress = `${address}, ${city}, ${state} ${zip}`;
+
+  const handleSumbit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      let coords = { lat: 40.7128, lng: -74.006 }; // Default fallback coordinates
+      try {
+        const geoCoords = await getLocations();
+        coords = geoCoords;
+      } catch (geoError: any) {
+        console.warn("Geolocation failed, using fallback coordinates:", geoError);
+      }
+
+      const payload = {
+        ...form,
+        ...coords,
+      };
+
+      if (editingId) {
+        const { data } = await api.put(`/addresses/${editingId}`, payload);
+        setAddresses(data.addresses);
+        updateUser({ addresses: data.addresses });
+        toast.success("Address updated successfully");
+      } else {
+        const { data } = await api.post("/addresses", payload);
+        setAddresses(data.addresses);
+        updateUser({ addresses: data.addresses });
+        toast.success("Address added successfully");
+      }
+      resetform();
+    } catch (error: any) {
+      toast.error(
+        error?.response?.data?.message ||
+          error?.message ||
+          "Failed to submit address",
+      );
+    }
   };
 
   const onEditHandler = (add: Address) => {
@@ -46,13 +122,27 @@ const Addresses = () => {
       zip: add.zip,
       isDefault: add.isDefault,
     });
-    setEditingId(add._id);
+    setEditingId(add.id);
     setShowForm(true);
   };
 
   useEffect(() => {
-    setAddresses(dummyAddressData);
-    setTimeout(() => setLoading(false), 1000);
+    api
+      .get("/addresses")
+      .then(({ data }) => {
+        setAddresses(data.addresses || []);
+      })
+      .catch((error: any) => {
+        toast.error(
+          error?.response?.data?.message ||
+            error?.message ||
+            "Error fetching addresses:",
+          error,
+        );
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -100,7 +190,7 @@ const Addresses = () => {
           <div className="space-y-4">
             {addresses.map((addr) => (
               <AddressCard
-                key={addr._id}
+                key={addr.id}
                 addr={addr}
                 onEditHandler={onEditHandler}
                 setAddresses={setAddresses}

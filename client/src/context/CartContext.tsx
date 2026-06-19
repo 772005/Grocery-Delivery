@@ -38,7 +38,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       // Store only essential data to avoid quota exceeded
       const minimalCart = items.map((item: CartItem) => ({
         product: {
-          _id: item.product._id,
+          id: item.product.id,
           name: item.product.name,
           price: item.product.price,
           image: item.product.image,
@@ -57,10 +57,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (product: Product, quantity = 1) => {
     setItems((prev: CartItem[]) => {
-      const existing = prev.find((item) => item.product._id === product._id);
+      const existing = prev.find((item) => item.product.id === product.id);
       if (existing) {
         return prev.map((item) =>
-          item.product._id === product._id
+          item.product.id === product.id
             ? { ...item, quantity: item.quantity + quantity }
             : item,
         );
@@ -72,7 +72,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeFromCart = (productId: string) => {
     setItems((prev: CartItem[]) =>
-      prev.filter((item) => item.product._id !== productId),
+      prev.filter((item) => item.product.id !== productId),
     );
   };
 
@@ -83,7 +83,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
     setItems((prev: CartItem[]) =>
       prev.map((item) =>
-        item.product._id === productId ? { ...item, quantity } : item,
+        item.product.id === productId ? { ...item, quantity } : item,
       ),
     );
   };

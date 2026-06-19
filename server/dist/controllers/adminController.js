@@ -32,7 +32,7 @@ export const getDeliveryPartners = async (req, res) => {
     const partners = await prisma.deliveryPartner.findMany({
         orderBy: { createdAt: 'desc' },
     });
-    res.json(partners);
+    res.json({ partners });
 };
 // create new deliverly partners profile
 export const createDeliveryPartner = async (req, res) => {

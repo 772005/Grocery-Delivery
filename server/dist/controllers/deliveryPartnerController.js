@@ -175,9 +175,12 @@ export const updateDeliveryLocation = async (req, res) => {
             status: { in: ["Assigned", "Packed", "Out for Delivery"] }
         }
     });
-    await prisma.deliveryPartner.update({
+    if (!order) {
+        return res.status(404).json({ message: "Active order not found" });
+    }
+    await prisma.order.update({
         where: {
-            id: req.partner.id
+            id: order.id
         },
         data: {
             liveLocation: {

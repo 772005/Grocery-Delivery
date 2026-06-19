@@ -215,9 +215,13 @@ export const updateDeliveryLocation = async (req: Request, res: Response) => {
         }
     });
 
-    await prisma.deliveryPartner.update({
+    if (!order) {
+        return res.status(404).json({ message: "Active order not found" });
+    }
+
+    await prisma.order.update({
         where: {
-            id: req.partner!.id
+            id: order.id
         },
         data: {
             liveLocation: {
@@ -227,9 +231,6 @@ export const updateDeliveryLocation = async (req: Request, res: Response) => {
             }
         }
     }); 
-            
-
-   
 
     res.json({ success: true, message: "Live location updated successfully" });
 }
