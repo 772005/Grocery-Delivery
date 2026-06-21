@@ -24,7 +24,7 @@ export default function DeliveryOrderCard({
   setOtpModal,
   setCancelModal,
 }: DeliveryOrderCardProps) {
-  const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
+  const currency = (import.meta.env.VITE_CURRENCY_SYMBOL || "$").replace(/['";]/g, "");
 
   const user =
     typeof order.user === "object"

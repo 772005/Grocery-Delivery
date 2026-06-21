@@ -16,7 +16,7 @@ export default function CheckoutReview({
   loading,
   total,
 }: CheckoutReviewProps) {
-  const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
+  const currency = (import.meta.env.VITE_CURRENCY_SYMBOL || "$").replace(/['";]/g, "");
 
   return (
     <div className="bg-white rounded-2xl p-6 animate-fade-in">

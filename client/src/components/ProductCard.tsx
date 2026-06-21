@@ -8,7 +8,7 @@ interface props {
 }
 
 const ProductCard = ({ product }: props) => {
-  const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
+  const currency = (import.meta.env.VITE_CURRENCY_SYMBOL || "$").replace(/['";]/g, "");
 
   const { addToCart } = useCart();
 
