@@ -7,6 +7,7 @@ const AddressForm = ({
   form,
   setForm,
   editingId,
+  submitting,
 }: any) => {
   return (
     <>
@@ -128,9 +129,10 @@ const AddressForm = ({
             {/* sumbit button */}
             <button
               type="submit"
-              className="mt-6 w-full py-3 bg-app-green text-white font-semibold rounded-xl hover:bg-app-green-light transition-colors"
+              disabled={submitting}
+              className="mt-6 w-full py-3 bg-app-green text-white font-semibold rounded-xl hover:bg-app-green-light transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {editingId ? "Update Address" : "Save Address"}
+              {submitting ? "Saving Address..." : (editingId ? "Update Address" : "Save Address")}
             </button>
           </form>
         </div>

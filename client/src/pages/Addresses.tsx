@@ -13,6 +13,7 @@ const Addresses = () => {
 
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState({
@@ -38,7 +39,7 @@ const Addresses = () => {
   };
 
   const getLocations = async (
-    retries = 3,
+    retries = 0,
   ): Promise<{ lat: number; lng: number }> => {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -64,7 +65,7 @@ const Addresses = () => {
           },
           {
             enableHighAccuracy: false,
-            timeout: 15000,
+            timeout: 3000,
             maximumAge: 0,
           },
         );
@@ -78,6 +79,7 @@ const Addresses = () => {
 
   const handleSumbit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitting(true);
     try {
       let coords = { lat: 40.7128, lng: -74.006 }; // Default fallback coordinates
       try {
@@ -110,6 +112,8 @@ const Addresses = () => {
           error?.message ||
           "Failed to submit address",
       );
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -171,6 +175,7 @@ const Addresses = () => {
             form={form}
             setForm={setForm}
             editingId={editingId}
+            submitting={submitting}
           />
         )}
         {/*address list */}
