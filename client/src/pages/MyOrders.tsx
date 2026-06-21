@@ -9,7 +9,7 @@ import toast from "react-hot-toast";
 import { statusColors } from "../assets/assets";
 
 const MyOrders = () => {
-  const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
+  const currency = (import.meta.env.VITE_CURRENCY_SYMBOL || "$").replace(/['";]/g, "");
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");

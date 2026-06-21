@@ -11,7 +11,7 @@ import api from "../config/api";
 const OrderTracking = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
+  const currency = (import.meta.env.VITE_CURRENCY_SYMBOL || "$").replace(/['";]/g, "");
 
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);

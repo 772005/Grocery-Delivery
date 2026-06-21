@@ -18,7 +18,7 @@ import { useAuth } from "../context/AuthContext";
 
 const CheckOut = () => {
   const navigate = useNavigate();
-  const currency = import.meta.env.VITE_CURRENCY_SYMBOL || "$";
+  const currency = (import.meta.env.VITE_CURRENCY_SYMBOL || "$").replace(/['";]/g, "");
 
   const { items, cartTotal, clearCart } = useCart();
   const { user } = useAuth();
