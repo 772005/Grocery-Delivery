@@ -8,7 +8,10 @@ import type { Order } from "../../types";
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const API_URL = import.meta.env.VITE_BASE_URL || "/api";
+let API_URL = import.meta.env.VITE_BASE_URL || "/api";
+if (API_URL && !API_URL.endsWith("/api")) {
+  API_URL = `${API_URL}/api`;
+}
 
 const getAuthHeaders = () => ({
   headers: {

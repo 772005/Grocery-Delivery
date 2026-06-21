@@ -1,7 +1,12 @@
 import axios from "axios";
 
+let baseUrl = import.meta.env.VITE_BASE_URL || "/api";
+if (baseUrl && !baseUrl.endsWith("/api")) {
+    baseUrl = `${baseUrl}/api`;
+}
+
 const api = axios.create({
-    baseURL: import.meta.env.VITE_BASE_URL || "/api",
+    baseURL: baseUrl,
 });
 
 // inject JWT token from local storage into the every request if it exists
