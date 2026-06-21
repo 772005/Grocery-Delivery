@@ -9,6 +9,9 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 let API_URL = import.meta.env.VITE_BASE_URL || "/api";
+if (API_URL && API_URL.endsWith("/")) {
+  API_URL = API_URL.slice(0, -1);
+}
 if (API_URL && !API_URL.endsWith("/api")) {
   API_URL = `${API_URL}/api`;
 }

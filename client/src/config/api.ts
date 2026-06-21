@@ -1,6 +1,9 @@
 import axios from "axios";
 
 let baseUrl = import.meta.env.VITE_BASE_URL || "/api";
+if (baseUrl && baseUrl.endsWith("/")) {
+    baseUrl = baseUrl.slice(0, -1);
+}
 if (baseUrl && !baseUrl.endsWith("/api")) {
     baseUrl = `${baseUrl}/api`;
 }
